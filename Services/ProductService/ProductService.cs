@@ -18,24 +18,29 @@ namespace shopify.Services.ProductService
             }
         };
 
-        public List<Product> AddProduct(Product newProduct)
+        public async Task<ServiceResponse<List<Product>>> AddProduct(Product newProduct)
         {
+            var serviceResponse = new ServiceResponse<List<Product>>();
             products.Add(newProduct);
-            return products;
+            serviceResponse.Data = products;
+            return serviceResponse;
         }
 
-        public List<Product> getAllProducts()
+        public async Task<ServiceResponse<List<Product>>> getAllProducts()
         {
-            return products;
+            var serviceResponse = new ServiceResponse<List<Product>>();
+            serviceResponse.Data = products;
+            return serviceResponse;
         }
 
-        public Product GetProductById(int id)
+        public async Task<ServiceResponse<Product>> GetProductById(int id)
         {
+            var serviceResponse = new ServiceResponse<Product>();
             var product = products.FirstOrDefault(c => c.Id == id);
-            if (product is not null)
-                return product;
-
-            throw new Exception("Character not found");
+//            if (product is null)
+//                throw new Exception("Product not found");
+            serviceResponse.Data = product;
+            return serviceResponse;
         }
     }
 }
