@@ -18,21 +18,27 @@ namespace shopify.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<ServiceResponse<List<Product>>>> Get() 
+        public async Task<ActionResult<ServiceResponse<List<GetProductDto>>>> Get() 
         {
             return Ok(await(_productService.getAllProducts()));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceResponse<Product>>> GetSingle(int id)
+        public async Task<ActionResult<ServiceResponse<GetProductDto>>> GetSingle(int id)
         {
             return Ok(await(_productService.GetProductById(id)));
         }
 
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse<List<Product>>>> AddProduct(Product newProduct)
+        public async Task<ActionResult<ServiceResponse<List<GetProductDto>>>> AddProduct(AddProductDto newProduct)
         {
             return Ok(await(_productService.AddProduct(newProduct)));
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<ServiceResponse<GetProductDto>>> UpdateProduct(UpdateProductDto udpatedProduct)
+        {
+            return Ok(await(_productService.UpdateProduct(udpatedProduct)));
         }
     }
 }
