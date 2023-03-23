@@ -54,29 +54,34 @@ namespace shopify.Services.ProductService
         public async Task<ServiceResponse<GetProductDto>> UpdateProduct(UpdateProductDto updatedProduct)
         {
             var serviceResponse = new ServiceResponse<GetProductDto>();
-            var product = products.FirstOrDefault(c => c.Id == updatedProduct.Id);
 
-            if (product is not null){
+            try{
+                var product = products.FirstOrDefault(c => c.Id == updatedProduct.Id);
 
-                if (updatedProduct.Title is not null)
-                    product.Title = updatedProduct.Title;
-                if (updatedProduct.Vendor is not null)
-                    product.Vendor = updatedProduct.Vendor;
-                if (updatedProduct.ProductType is not null)
-                    product.ProductType = updatedProduct.ProductType;
-                if (updatedProduct.TemplateSuffix is not null)
-                    product.TemplateSuffix = updatedProduct.TemplateSuffix;
-                if (updatedProduct.ImageId is not null)
-                    product.ImageId = updatedProduct.ImageId;
-                if (updatedProduct.Status is not null)
-                    product.Status = (ProductStatus)updatedProduct.Status;
-                
-                products.Add(product);
+                if (product is not null){
 
-                serviceResponse.Data = _mapper.Map<GetProductDto>(product);
-            } else {
-                serviceResponse.Success = false;
-                serviceResponse.Message = "Product not found";
+                    if (updatedProduct.Title is not null)
+                        product.Title = updatedProduct.Title;
+                    if (updatedProduct.Vendor is not null)
+                        product.Vendor = updatedProduct.Vendor;
+                    if (updatedProduct.ProductType is not null)
+                        product.ProductType = updatedProduct.ProductType;
+                    if (updatedProduct.TemplateSuffix is not null)
+                        product.TemplateSuffix = updatedProduct.TemplateSuffix;
+                    if (updatedProduct.ImageId is not null)
+                        product.ImageId = updatedProduct.ImageId;
+                    if (updatedProduct.Status is not null)
+                        product.Status = (ProductStatus)updatedProduct.Status;
+                    
+                    products.Add(product);
+
+                    serviceResponse.Data = _mapper.Map<GetProductDto>(product);
+                } else {
+                    throw new Exception ($"Cannot locate Product with ID: '{updatedProduct.Id}', please check your product update payload");
+                }
+            } catch(Exception e){
+                    serviceResponse.Success = false;
+                    serviceResponse.Message = $"exeption: {e.Message}";
             }
 
             return serviceResponse;

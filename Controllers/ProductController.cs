@@ -38,7 +38,12 @@ namespace shopify.Controllers
         [HttpPut]
         public async Task<ActionResult<ServiceResponse<GetProductDto>>> UpdateProduct(UpdateProductDto udpatedProduct)
         {
-            return Ok(await(_productService.UpdateProduct(udpatedProduct)));
+            var response = await(_productService.UpdateProduct(udpatedProduct));
+            if (response.Success){
+                return Ok(response);
+            } else {
+                return this.BadRequest(response);
+            }
         }
     }
 }
