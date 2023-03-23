@@ -10,34 +10,29 @@ namespace shopify.Controllers
     [Route("api/[controller]")]
     public class ProductController : ControllerBase
     {
-        private static List<Product> products = new List<Product>{
-            new Product{
-                Id = 0
-            },
-            new Product { 
-                Id = 1,
-                Title = "Second DotNet Product",
-                Status = ProductStatus.Active
-            }
-        };
+        private readonly IProductService _productService;
+
+        public ProductController(IProductService productService)
+        {
+            this._productService = productService;
+        }
 
         [HttpGet("GetAll")]
         public ActionResult<List<Product>> Get() 
         {
-            return Ok(products);
+            return Ok(_productService.getAllProducts());
         }
 
         [HttpGet("{id}")]
         public ActionResult<Product> GetSingle(int id)
         {
-            return Ok(products.FirstOrDefault(c => c.Id == id));
+            return Ok(_productService.GetProductById(id));
         }
 
         [HttpPost]
         public ActionResult<List<Product>> AddProduct(Product newProduct)
         {
-            products.Add(newProduct);
-            return Ok(products);
+            return Ok(_productService.AddProduct(newProduct));
         }
     }
 }
