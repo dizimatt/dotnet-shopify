@@ -34,7 +34,30 @@ namespace shopify.Services.ProductService
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<GetProductDto>>> getAllProducts()
+        public async Task<ServiceResponse<List<GetProductDto>>> DeleteProduct(int id)
+        {
+            var serviceResponse = new ServiceResponse<List<GetProductDto>>();
+
+            try{
+                var product = products.FirstOrDefault(c => c.Id == id);
+
+                if (product is not null){
+                    products.Remove(product);
+                    serviceResponse.Success = true;
+                    serviceResponse.Data = products.Select(c => _mapper.Map<GetProductDto>(c)).ToList();
+                } else {
+                    throw new Exception ($"Cannot locate Product with ID: '{id}', please check your product delete parameter");
+                }
+            } catch(Exception e){
+                    serviceResponse.Success = false;
+                    serviceResponse.Message = $"exeption: {e.Message}";
+            }
+
+            return serviceResponse;
+
+        }
+
+        public async Task<ServiceResponse<List<GetProductDto>>> GetAllProducts()
         {
             var serviceResponse = new ServiceResponse<List<GetProductDto>>();
             serviceResponse.Data = products.Select(c => _mapper.Map<GetProductDto>(c)).ToList();
@@ -75,6 +98,7 @@ namespace shopify.Services.ProductService
                     
                     products.Add(product);
 
+                    serviceResponse.Success = true;
                     serviceResponse.Data = _mapper.Map<GetProductDto>(product);
                 } else {
                     throw new Exception ($"Cannot locate Product with ID: '{updatedProduct.Id}', please check your product update payload");

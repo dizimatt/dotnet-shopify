@@ -20,7 +20,7 @@ namespace shopify.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult<ServiceResponse<List<GetProductDto>>>> Get() 
         {
-            return Ok(await(_productService.getAllProducts()));
+            return Ok(await(_productService.GetAllProducts()));
         }
 
         [HttpGet("{id}")]
@@ -39,6 +39,17 @@ namespace shopify.Controllers
         public async Task<ActionResult<ServiceResponse<GetProductDto>>> UpdateProduct(UpdateProductDto udpatedProduct)
         {
             var response = await(_productService.UpdateProduct(udpatedProduct));
+            if (response.Success){
+                return Ok(response);
+            } else {
+                return this.BadRequest(response);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<ServiceResponse<List<GetProductDto>>>> DeleteProduct(int id) 
+        {
+            var response = await(_productService.DeleteProduct(id));
             if (response.Success){
                 return Ok(response);
             } else {
