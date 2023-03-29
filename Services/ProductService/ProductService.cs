@@ -19,18 +19,24 @@ namespace shopify.Services.ProductService
         };
 
         private readonly IMapper _mapper;
+        private readonly DataContext _context;
 
-        public ProductService(IMapper mapper){
+        public ProductService(IMapper mapper, DataContext context){
+            _context = context;
             _mapper = mapper;
         }
         
         public async Task<ServiceResponse<List<GetProductDto>>> AddProduct(AddProductDto newProduct)
         {
             var serviceResponse = new ServiceResponse<List<GetProductDto>>();
+            
             var product = _mapper.Map<Product>(newProduct);
-            product.Id = products.Max(c => c.Id) + 1;
-            products.Add(product);
-            serviceResponse.Data = products.Select(c => _mapper.Map<GetProductDto>(c)).ToList();
+//            product.Id = await _context.Products.MaxAsync(c => c.Id) + 1;
+            await _context.Products.AddAsync(product);
+
+            var dbProducts = await _context.Products.ToListAsync();
+            serviceResponse.Data = dbProducts.Select(c => _mapper.Map<GetProductDto>(c)).ToList();
+
             return serviceResponse;
         }
 
@@ -39,12 +45,14 @@ namespace shopify.Services.ProductService
             var serviceResponse = new ServiceResponse<List<GetProductDto>>();
 
             try{
-                var product = products.FirstOrDefault(c => c.Id == id);
+                var dbProduct = await _context.Products.FirstOrDefaultAsync(c => c.Id == id);
 
-                if (product is not null){
-                    products.Remove(product);
+                if (dbProduct is not null){
+                    await _context.Products.ExecuteDeleteAsync();
                     serviceResponse.Success = true;
-                    serviceResponse.Data = products.Select(c => _mapper.Map<GetProductDto>(c)).ToList();
+
+                    var dbProducts = await _context.Products.ToListAsync();
+                    serviceResponse.Data = dbProducts.Select(c => _mapper.Map<GetProductDto>(c)).ToList();
                 } else {
                     throw new Exception ($"Cannot locate Product with ID: '{id}', please check your product delete parameter");
                 }
@@ -60,17 +68,18 @@ namespace shopify.Services.ProductService
         public async Task<ServiceResponse<List<GetProductDto>>> GetAllProducts()
         {
             var serviceResponse = new ServiceResponse<List<GetProductDto>>();
-            serviceResponse.Data = products.Select(c => _mapper.Map<GetProductDto>(c)).ToList();
+            var dbProducts = await _context.Products.ToListAsync();
+            serviceResponse.Data = dbProducts.Select(c => _mapper.Map<GetProductDto>(c)).ToList();
             return serviceResponse;
         }
 
         public async Task<ServiceResponse<GetProductDto>> GetProductById(int id)
         {
             var serviceResponse = new ServiceResponse<GetProductDto>();
-            var product = products.FirstOrDefault(c => c.Id == id);
+            var dbProduct = await _context.Products.FirstOrDefaultAsync(c => c.Id == id);
 //            if (product is null)
 //                throw new Exception("Product not found");
-            serviceResponse.Data = _mapper.Map<GetProductDto>(product);
+            serviceResponse.Data = _mapper.Map<GetProductDto>(dbProduct);
             return serviceResponse;
         }
 
@@ -79,27 +88,28 @@ namespace shopify.Services.ProductService
             var serviceResponse = new ServiceResponse<GetProductDto>();
 
             try{
-                var product = products.FirstOrDefault(c => c.Id == updatedProduct.Id);
+                var dbProduct = await _context.Products.FirstOrDefaultAsync(c => c.Id == updatedProduct.Id);
 
-                if (product is not null){
+                if (dbProduct is not null){
 
                     if (updatedProduct.Title is not null)
-                        product.Title = updatedProduct.Title;
+                        dbProduct.Title = updatedProduct.Title;
                     if (updatedProduct.Vendor is not null)
-                        product.Vendor = updatedProduct.Vendor;
+                        dbProduct.Vendor = updatedProduct.Vendor;
                     if (updatedProduct.ProductType is not null)
-                        product.ProductType = updatedProduct.ProductType;
+                        dbProduct.ProductType = updatedProduct.ProductType;
                     if (updatedProduct.TemplateSuffix is not null)
-                        product.TemplateSuffix = updatedProduct.TemplateSuffix;
+                        dbProduct.TemplateSuffix = updatedProduct.TemplateSuffix;
                     if (updatedProduct.ImageId is not null)
-                        product.ImageId = updatedProduct.ImageId;
+                        dbProduct.ImageId = updatedProduct.ImageId;
                     if (updatedProduct.Status is not null)
-                        product.Status = (ProductStatus)updatedProduct.Status;
+                        dbProduct.Status = (ProductStatus)updatedProduct.Status;
                     
-                    products.Add(product);
+                    await _context.Products.AddAsync(dbProduct);
+//                    products.Add(product);
 
                     serviceResponse.Success = true;
-                    serviceResponse.Data = _mapper.Map<GetProductDto>(product);
+                    serviceResponse.Data = _mapper.Map<GetProductDto>(dbProduct);
                 } else {
                     throw new Exception ($"Cannot locate Product with ID: '{updatedProduct.Id}', please check your product update payload");
                 }

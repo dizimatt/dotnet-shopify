@@ -1,0 +1,16 @@
+{
+    "sqltools.connections": [
+        {
+            "mssqlOptions": {
+                "appName": "SQLTools",
+                "useUTC": true,
+                "encrypt": true
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "driver": "MSSQL",
+            "name": "sqlserver",
+            "connectString": "Server=127.0.0.1,1433; Database=dotnet-shopify; TrustServerCertificate=true; User ID=SA; Password=openresourcing@D0z1n2ss;"
+        }
+    ]
+}
